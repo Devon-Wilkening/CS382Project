@@ -12,7 +12,6 @@ extern char lexeme[];
 void expr();
 void term();
 void factor();
-void getNextToken(); // Declare a function to get the next token
 
 /* main driver */
 int main() {
@@ -36,7 +35,7 @@ int main() {
         lex(); // Perform lexical analysis
         expr(); // Perform parsing
     } while (nextToken != EOF);
-    printf("print 39");
+    printf("print");
 
     /* Close the input file */
     fclose(in_fp);
@@ -44,17 +43,12 @@ int main() {
     return 0; // Return with success status
 }
 
-/* Function to get the next token from the lexical analyzer */
-void getNextToken() {
-    nextToken = lex(); // Assuming lex() returns the next token
-}
-
 /* Parser functions */
 
 void expr() {
     term();
     while (nextToken == ADD_OP || nextToken == SUB_OP) {
-        getNextToken(); // Get the next token from the lexical analyzer
+        nextToken = lex(); // Get the next token from the lexical analyzer
         term();
     }
 }
@@ -62,19 +56,19 @@ void expr() {
 void term() {
     factor();
     while (nextToken == MULT_OP || nextToken == DIV_OP) {
-        getNextToken(); // Get the next token from the lexical analyzer
+        nextToken = lex(); // Get the next token from the lexical analyzer
         factor();
     }
 }
 
 void factor() {
     if (nextToken == IDENT || nextToken == INT_LIT) {
-        getNextToken(); // Get the next token from the lexical analyzer
+        nextToken = lex(); // Get the next token from the lexical analyzer
     } else if (nextToken == LEFT_PAREN) {
-        getNextToken(); // Get the next token from the lexical analyzer
+        nextToken = lex(); // Get the next token from the lexical analyzer
         expr();
         if (nextToken == RIGHT_PAREN) {
-            getNextToken(); // Get the next token from the lexical analyzer
+            nextToken = lex(); // Get the next token from the lexical analyzer
         } else {
             // Handle error: ')' expected
         }

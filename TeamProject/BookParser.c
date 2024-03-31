@@ -111,3 +111,42 @@ Next token is: 24 Next lexeme is /
 Next token is: 11 Next lexeme is total
 Next token is: -1 Next lexeme is EOF
 */
+
+/* Parser functions */
+
+void expr() {
+    term();
+    while (nextToken == ADD_OP || nextToken == SUB_OP) {
+        nextToken = lex(); // Get the next token from the lexical analyzer
+        term();
+    }
+}
+
+void term() {
+    factor();
+    while (nextToken == MULT_OP || nextToken == DIV_OP) {
+        nextToken = lex(); // Get the next token from the lexical analyzer
+        factor();
+    }
+}
+
+void factor() {
+    if (nextToken == IDENT || nextToken == INT_LIT) {
+        nextToken = lex(); // Get the next token from the lexical analyzer
+    } else if (nextToken == LEFT_PAREN) {
+        nextToken = lex(); // Get the next token from the lexical analyzer
+        expr();
+        if (nextToken == RIGHT_PAREN) {
+            nextToken = lex(); // Get the next token from the lexical analyzer
+        } else {
+            printf("Error: ')' expected\n");
+            // Handle error: ')' expected
+        }
+    } else {
+        printf("Error: Unexpected token\n");
+        // Handle error: Unexpected token
+    }
+}
+
+
+

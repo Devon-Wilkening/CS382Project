@@ -8,6 +8,8 @@
 
 /* Variables */
 
+int nextToken;
+char lexeme[];
 char lexeme [100];
 int nextToken;
 FILE *in_fp, *fopen();
@@ -29,7 +31,7 @@ int lookup(char ch);
 
 /******************************************************/
 
-/* int main() {
+int main() {
 
     if ((in_fp = fopen("front.in", "r")) == NULL)
         printf("ERROR - cannot open front.in \n");
@@ -40,7 +42,7 @@ int lookup(char ch);
         } while (nextToken != EOF);
      return 0; // Add a return statement?
 }
-} */
+} 
 
 
 /*****************************************************/
