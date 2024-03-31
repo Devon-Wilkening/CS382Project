@@ -1,20 +1,20 @@
-// Both.c
 #include <stdio.h>
 #include <ctype.h>
 
 /* Global declarations */
 
-/* Variables */
+// Variables 
 
 char lexeme [100];
 int nextToken;
-FILE *in_fp, *fopen();
+FILE *in_fp, *out_fp, *fopen();
 int charClass;
 int lexLen;
 int token;
 char nextChar;
+int currentIndentation = 0;
 
-/* Function declarations */
+// Functions
 
 void addChar();
 void getChar();
@@ -25,7 +25,7 @@ void expr();
 void term();
 void factor();
 
-/* Character classes */
+// Char Classes
 #define LETTER 0
 #define DIGIT 1
 #define UNKNOWN 99
@@ -39,23 +39,30 @@ void factor();
 #define LEFT_PAREN 25
 #define RIGHT_PAREN 26
 
+
 int main() {
     if ((in_fp = fopen("front.in", "r")) == NULL) {
         printf("ERROR - cannot open front.in \n");
     } else {
-        getChar();
-        expr(); 
+        // Open the output file for writing
+        if ((out_fp = fopen("output.txt", "w")) == NULL) {
+            printf("ERROR - cannot open output.txt for writing \n");
+            return 1;
+        }
+        
+        getChar(); 
         do {
             lex();
+            expr();
         } while (nextToken != EOF);
+        
     }
 }
 
+/* Lexical Analyzer */
 
-
-
-/* lookup - a function to lookup operators and parentheses
-and return the token */
+// lookup - a function to lookup operators and parentheses
+and return the token 
 
 int lookup(char ch) {
     switch (ch) {
@@ -90,9 +97,8 @@ int lookup(char ch) {
     }
     return nextToken;
 }
-/*****************************************************/
 
-/* addChar - a function to add  to lexeme */
+// addChar - a function to add  to lexeme
 void addChar() {
     if (lexLen <= 98) {
         lexeme[lexLen++] = nextChar;
@@ -102,25 +108,7 @@ void addChar() {
         printf("Error - lexeme is too long \n");
 }
 
-/*****************************************************/
-
-/* getChar - a function to get the next character of
-input and determine its character class 
-void getChar() {
-    if ((nextChar = getc(in_fp)) == EOF) {
-        printf("line 111");
-        if (isalpha(nextChar))
-            charClass = LETTER;
-        else if (isdigit(nextChar))
-            charClass = DIGIT;
-            else charClass = UNKNOWN;
-    }
-    else
-        printf("line 119");
-        charClass = EOF;
-}
-*/
-
+//
 void getChar() {
     nextChar = getc(in_fp);
     if (nextChar != EOF) {
@@ -135,16 +123,16 @@ void getChar() {
     }
 }
 
-/* getNonBlank - a function to call getChar until it
-returns a non-whitespace character */
+// getNonBlank - a function to call getChar until it
+returns a non-whitespace character
 void getNonBlank() {
     while (isspace(nextChar))
         getChar();
 }
-/******************************************************/
 
-/* lex - a simple lexical analyzer for arithmetic
-expressions */
+
+// lex - a simple lexical analyzer for arithmetic
+expressions 
 int lex() {
     lexLen = 0;
     getNonBlank();
@@ -188,41 +176,58 @@ int lex() {
     return nextToken;
 }
 
+void error() {
+    printf("Error in parsing\n");
+}
+
+/***********************************/
+
+/* Recursice Descent Parser */
+
 void expr() {
-    printf("[expr\n");
+    fprintf(out_fp, "%*s[expr\n", currentIndentation, "");    currentIndentation += 4;
     term();
     while (nextToken == ADD_OP || nextToken == SUB_OP) {
+        fprintf(out_fp, "%*s[%c]\n", currentIndentation, "", lexeme[0]);
         lex();
         term();
     }
-    printf("]\n");
-} 
-
+    currentIndentation -= 4;
+    fprintf(out_fp, "%*s]\n", currentIndentation, "");
+}
 
 void term() {
-    printf("[term\n");
+    fprintf(out_fp, "%*s[term\n", currentIndentation, "");
+    currentIndentation += 4;
     factor();
     while (nextToken == MULT_OP || nextToken == DIV_OP) {
+        fprintf(out_fp, "%*s[%c]\n", currentIndentation, "", lexeme[0]);
         lex();
         factor();
     }
-    printf("]\n");
-} 
+    currentIndentation -= 4;
+    fprintf(out_fp, "%*s]\n", currentIndentation, "");
+}
 
 void factor() {
-    printf("[factor\n");
-    if (nextToken == IDENT || nextToken == INT_LIT)
+    fprintf(out_fp, "%*s[factor\n", currentIndentation, "");
+    currentIndentation += 4;
+    if (nextToken == IDENT || nextToken == INT_LIT) {
+        fprintf(out_fp, "%*s[id [%s]]\n", currentIndentation, "", lexeme);
         lex();
-    else {
-        if (nextToken == LEFT_PAREN) {
+    } else if (nextToken == LEFT_PAREN) {
+        fprintf(out_fp, "%*s[LPAREN]\n", currentIndentation, "");
+        lex();
+        expr();
+        if (nextToken == RIGHT_PAREN) {
+            fprintf(out_fp, "%*s[RPAREN]\n", currentIndentation, "");
             lex();
-            expr();
-            if (nextToken == RIGHT_PAREN)
-                lex();
-            else
-                printf("Error");
-        } 
-    else printf("Error");
-    } 
-    printf("]\n");;
-} 
+        } else {
+            error(); // Error handling for missing closing parenthesis
+        }
+    } else {
+        error(); // Error handling for unexpected token
+    }
+    currentIndentation -= 4;
+    fprintf(out_fp, "%*s]\n", currentIndentation, "");
+}
