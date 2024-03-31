@@ -1,95 +1,86 @@
-/* Starting point from chatgpt*/
+/* Parser.c */
+#include "LexicalAnalyzer.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <ctype.h>
 
-/* Define token codes */
-#define INT_LIT 10
-#define IDENT 11
-#define ASSIGN_OP 20
-#define ADD_OP 21
-#define SUB_OP 22
-#define MULT_OP 23
-#define DIV_OP 24
-#define LEFT_PAREN 25
-#define RIGHT_PAREN 26
+/* Add global variables for token and lexeme */
+extern int nextToken;
+extern char lexeme[];
 
-/* Global variables */
-int nextToken;
-char lexeme[100];
 
-/* Function to get the next token from lexical analyzer */
-void lex() {
-    // Code to get the next token from lexical analyzer
-}
-
-/* Error handler function */
-void error() {
-    fprintf(stderr, "Syntax error\n");
-    exit(EXIT_FAILURE);
-}
-
-/* Function prototypes */
+/* Function declarations */
 void expr();
 void term();
 void factor();
+void getNextToken(); // Declare a function to get the next token
 
-/* Function for <term> nonterminal */
-void term() {
-    printf("Enter <term>\n");
-    factor();
-    while (nextToken == MULT_OP || nextToken == DIV_OP) {
-        lex();
-        factor();
+/* main driver */
+int main() {
+    /* Open the input data file and process its contents */
+    FILE *in_fp;
+    printf("line 21");
+
+    if ((in_fp = fopen("front.in", "r")) == NULL) {
+        printf("ERROR - cannot open front.in\n");
+        return 1; // Return with error status
     }
-    printf("Exit <term>\n");
+    printf("line 27");
+    /* Initialize global variables for the lexical analyzer */
+    charClass = lexLen = token = nextToken = 0;
+    nextChar = ' ';
+
+    printf("line 32");
+    /* Start processing the input */
+    getChar(); // Initialize nextChar
+    do {
+        lex(); // Perform lexical analysis
+        expr(); // Perform parsing
+    } while (nextToken != EOF);
+    printf("print 39");
+
+    /* Close the input file */
+    fclose(in_fp);
+
+    return 0; // Return with success status
 }
 
-/* Function for <factor> nonterminal */
-void factor() {
-    printf("Enter <factor>\n");
-    if (nextToken == IDENT || nextToken == INT_LIT) {
-        lex();
-    } else if (nextToken == LEFT_PAREN) {
-        lex();
-        expr();
-        if (nextToken == RIGHT_PAREN) {
-            lex();
-        } else {
-            error();
-        }
-    } else {
-        error();
-    }
-    printf("Exit <factor>\n");
+/* Function to get the next token from the lexical analyzer */
+void getNextToken() {
+    nextToken = lex(); // Assuming lex() returns the next token
 }
 
-/* Function for <expr> nonterminal */
+/* Parser functions */
+
 void expr() {
-    printf("Enter <expr>\n");
     term();
     while (nextToken == ADD_OP || nextToken == SUB_OP) {
-        lex();
+        getNextToken(); // Get the next token from the lexical analyzer
         term();
     }
-    printf("Exit <expr>\n");
 }
 
-/* Main function */
-int main() {
-    // Initialize parser
-    // Get the first token
-    lex();
-    
-    // Start parsing
-    expr();  // Start with <expr>
-    
-    // Check for end of input
-    if (nextToken != -1) {
-        error();
+void term() {
+    factor();
+    while (nextToken == MULT_OP || nextToken == DIV_OP) {
+        getNextToken(); // Get the next token from the lexical analyzer
+        factor();
     }
-    
-    printf("Parsing successful.\n");
-    
-    return 0;
 }
+
+void factor() {
+    if (nextToken == IDENT || nextToken == INT_LIT) {
+        getNextToken(); // Get the next token from the lexical analyzer
+    } else if (nextToken == LEFT_PAREN) {
+        getNextToken(); // Get the next token from the lexical analyzer
+        expr();
+        if (nextToken == RIGHT_PAREN) {
+            getNextToken(); // Get the next token from the lexical analyzer
+        } else {
+            // Handle error: ')' expected
+        }
+    } else {
+        // Handle error: Unexpected token
+    }
+}
+
+
