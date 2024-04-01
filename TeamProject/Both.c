@@ -61,8 +61,7 @@ int main() {
 
 /* Lexical Analyzer */
 
-// lookup - a function to lookup operators and parentheses
-and return the token 
+// lookup - a function to lookup operators and parentheses and return the token 
 
 int lookup(char ch) {
     switch (ch) {
@@ -123,16 +122,14 @@ void getChar() {
     }
 }
 
-// getNonBlank - a function to call getChar until it
-returns a non-whitespace character
+// getNonBlank - a function to call getChar until it returns a non-whitespace character
 void getNonBlank() {
     while (isspace(nextChar))
         getChar();
 }
 
 
-// lex - a simple lexical analyzer for arithmetic
-expressions 
+// lex - a simple lexical analyzer for arithmetic expressions 
 int lex() {
     lexLen = 0;
     getNonBlank();
@@ -149,14 +146,14 @@ int lex() {
             break;
     /* Parse integer literals */
             case DIGIT:
-            addChar();
-            getChar();
-            while (charClass == DIGIT) {
                 addChar();
                 getChar();
-            }
-            nextToken = INT_LIT;
-            break;
+                while (charClass == DIGIT) {
+                    addChar();
+                    getChar();
+                }
+                nextToken = INT_LIT;
+                break;
     /* Parentheses and operators */
             case UNKNOWN:
                 lookup(nextChar);
