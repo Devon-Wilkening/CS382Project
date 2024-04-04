@@ -61,19 +61,28 @@ void factor();
 
 
 int main() {
+
+    // Opens front.in for reading
     if ((in_fp = fopen("front.in", "r")) == NULL) {
         printf("ERROR - cannot open front.in \n");
     } else {
+
         // Open the output file for writing
         if ((out_fp = fopen("output.txt", "w")) == NULL) {
             printf("ERROR - cannot open output.txt for writing \n");
             return 1;
         }
-        
+
+        // Reads first character from input file 
         getChar(); 
+
         do {
+            // Lexical Analysis 
             lex();
+            // Parses
             expr();
+
+        // End of input file has been reached 
         } while (nextToken != EOF);
         
     }
@@ -85,30 +94,37 @@ int main() {
 //lookup uses the following rules from predefined grammar: <factor> ::= <id> | <int> | ( <expr> ), <id> ::= <letter> {<letter>|<digit>}
 int lookup(char ch) {
     switch (ch) {
+        // Gives '(' value LEFT_PAREN
         case '(':
             addChar();
             nextToken = LEFT_PAREN;
             break;
+        // Gives ')' value RIGHT_PAREN
         case ')':
             addChar();
             nextToken = RIGHT_PAREN;
             break;
+        // Gives '+' value ADD_OP
         case '+':
             addChar();
             nextToken = ADD_OP;
             break;
+        // Gives '-' value SUB_OP
         case '-':
             addChar();
             nextToken = SUB_OP;
             break;
+        // Gives '*' value MULT_OP
         case '*':
             addChar();
             nextToken = MULT_OP;
             break;
+        // Gives '/' value DIV_OP
         case '/':
             addChar();
             nextToken = DIV_OP;
             break;
+        // Character doesn't fit anything. Must be end of file. 
         default:
             addChar();
             nextToken = EOF;
@@ -120,8 +136,13 @@ int lookup(char ch) {
 // addChar - a function to add to lexeme
 //addChar utilizes the following rule from predefined grammar: <expr> ::= <term> {(+|-) <term>}, <int> ::= <digit> {<digit>}
 void addChar() {
+
+    // Make sure lexeme has room 
     if (lexLen <= 98) {
+
+        // Adds next character to lexeme array
         lexeme[lexLen++] = nextChar;
+        // Adds null terminator to end of lexeme array to mark the end of array
         lexeme[lexLen] = 0;
     }
     else
@@ -131,12 +152,18 @@ void addChar() {
 //getChar - function to get char from input file and set charClass
 //getChar uses the following rule form the predefined grammar: <expr> ::= <term> {(+|-) <term>}
 void getChar() {
+
+    // Reads next character in file and assigns to variable
     nextChar = getc(in_fp);
+
     if (nextChar != EOF) {
+        // If nextChar is letter, belongs to LETTER charClass
         if (isalpha(nextChar))
             charClass = LETTER;
+        // If nextChar is number, belongs to DIGIT charClass
         else if (isdigit(nextChar))
             charClass = DIGIT;
+        // If nextChar is something else, belongs to UNKNOWN charClass
         else
             charClass = UNKNOWN;
     } else {
@@ -151,48 +178,72 @@ void getNonBlank() {
 }
 
 
+
 // lex - a simple lexical analyzer for arithmetic expressions 
 //Uses the following rules from BNF grammar: <factor> ::= <id> | <int> | ( <expr> ), <id> ::= <letter> {<letter>|<digit>}, <int> ::= <digit> {<digit>}
+
 int lex() {
+
+    // Keeps track of lexeme length
     lexLen = 0;
+    // Make sure white space is not selected 
     getNonBlank();
+
+    // Finds current char's class 
     switch (charClass) {
-    /* Parse identifiers */
+
+        // If char is a letter ...
         case LETTER:
+            // Adds current char to lexeme 
             addChar();
+            // Reads next char 
             getChar();
+            // Continues adding chars to lexeme if theyre nums or letters
             while (charClass == LETTER || charClass == DIGIT) {
                 addChar();
                 getChar();
             }
+            // Shows identifier token has been found
             nextToken = IDENT;
             break;
-    /* Parse integer literals */
-            case DIGIT:
+        
+        // If char is a number ... 
+        case DIGIT:
+            // Adds current char to lexeme 
             addChar();
+            // Reads next char 
             getChar();
+            // Continues adding chars to lexeme if theyre nums
             while (charClass == DIGIT) {
                 addChar();
                 getChar();
             }
+            // Shows integer literal token has been found
             nextToken = INT_LIT;
             break;
-    /* Parentheses and operators */
-            case UNKNOWN:
-                lookup(nextChar);
-                getChar();
-                break;
-    /* EOF */
-            case EOF:
-                nextToken = EOF;
-                lexeme[0] = 'E';
-                lexeme[1] = 'O';
-                lexeme[2] = 'F';
-                lexeme[3] = 0;
-                break;
-        } /* End of switch */
-    printf("Next token is: %d, Next lexeme is %s\n",
-        nextToken, lexeme);
+
+        // If char is something else ...
+        case UNKNOWN:
+            // Determine token type of unknown character
+            lookup(nextChar);
+            // Reads next char
+            getChar();
+            break;
+    
+        // If there is no char ...
+        case EOF:
+            // Set nextToken to EOF
+            nextToken = EOF;
+            // Contstruct lexeme "EOF"
+            lexeme[0] = 'E';
+            lexeme[1] = 'O';
+            lexeme[2] = 'F';
+            lexeme[3] = 0;
+            break;
+        } 
+
+    // Print current char token type and lexeme
+    printf("Next token is: %d, Next lexeme is %s\n",nextToken, lexeme);
     return nextToken;
 }
 
