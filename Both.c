@@ -177,8 +177,6 @@ void getNonBlank() {
         getChar();
 }
 
-
-
 // lex - a simple lexical analyzer for arithmetic expressions 
 //Uses the following rules from BNF grammar: <factor> ::= <id> | <int> | ( <expr> ), <id> ::= <letter> {<letter>|<digit>}, <int> ::= <digit> {<digit>}
 
