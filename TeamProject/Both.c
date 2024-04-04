@@ -1,3 +1,19 @@
+/*Grammar Documentation:
+
+Throughout the development of this Lexical Analyzer/Parser program, the 
+following grammatical rules have been utilized.
+
+<expr> ::= <term> {(+|-) <term>}
+<term> ::= <factor> {(*|/) <factor>}
+<factor> ::= <id> | <int> | ( <expr> )
+<id> ::= <letter> {<letter>|<digit>}
+<int> ::= <digit> {<digit>}
+
+With these rules, the program abides by the BNF grammar. Throughout the code, inline comments
+will be made documenting the use of such rules, as well as highlighting the use of proper naming convention in the C programming language.  
+
+*/
+
 #include <stdio.h>
 #include <ctype.h>
 
@@ -5,6 +21,7 @@
 
 // Variables 
 
+//Variable declaration makes use of correct naming conventions for variables in C. 
 char lexeme [100];
 int nextToken;
 FILE *in_fp, *out_fp, *fopen();
@@ -16,6 +33,7 @@ int currentIndentation = 0;
 
 // Functions
 
+//Similar to variables, camel case is used to abide by naming conventions for functions in C.
 void addChar();
 void getChar();
 void getNonBlank();
@@ -26,6 +44,8 @@ void term();
 void factor();
 
 // Char Classes
+
+//Here, capitilzation is used in accordance with proper naming conventions on named constants.
 #define LETTER 0
 #define DIGIT 1
 #define UNKNOWN 99
@@ -61,9 +81,8 @@ int main() {
 
 /* Lexical Analyzer */
 
-// lookup - a function to lookup operators and parentheses
-and return the token 
-
+// lookup - a function to lookup operators and parentheses and return the token 
+//lookup uses the following rules from predefined grammar: <factor> ::= <id> | <int> | ( <expr> ), <id> ::= <letter> {<letter>|<digit>}
 int lookup(char ch) {
     switch (ch) {
         case '(':
@@ -98,7 +117,8 @@ int lookup(char ch) {
     return nextToken;
 }
 
-// addChar - a function to add  to lexeme
+// addChar - a function to add to lexeme
+//addChar utilizes the following rule from predefined grammar: <expr> ::= <term> {(+|-) <term>}, <int> ::= <digit> {<digit>}
 void addChar() {
     if (lexLen <= 98) {
         lexeme[lexLen++] = nextChar;
@@ -108,7 +128,8 @@ void addChar() {
         printf("Error - lexeme is too long \n");
 }
 
-//
+//getChar - function to get char from input file and set charClass
+//getChar uses the following rule form the predefined grammar: <expr> ::= <term> {(+|-) <term>}
 void getChar() {
     nextChar = getc(in_fp);
     if (nextChar != EOF) {
@@ -123,16 +144,15 @@ void getChar() {
     }
 }
 
-// getNonBlank - a function to call getChar until it
-returns a non-whitespace character
+// getNonBlank - a function to call getChar until it returns a non-whitespace character
 void getNonBlank() {
     while (isspace(nextChar))
         getChar();
 }
 
 
-// lex - a simple lexical analyzer for arithmetic
-expressions 
+// lex - a simple lexical analyzer for arithmetic expressions 
+//Uses the following rules from BNF grammar: <factor> ::= <id> | <int> | ( <expr> ), <id> ::= <letter> {<letter>|<digit>}, <int> ::= <digit> {<digit>}
 int lex() {
     lexLen = 0;
     getNonBlank();
@@ -182,8 +202,9 @@ void error() {
 
 /***********************************/
 
-/* Recursice Descent Parser */
+/* Recursive Descent Parser */
 
+//expr() uses following grammatical rule: <expr> ::= <term> {(+|-) <term>}
 void expr() {
     fprintf(out_fp, "%*s[expr\n", currentIndentation, "");    currentIndentation += 4;
     term();
@@ -196,6 +217,7 @@ void expr() {
     fprintf(out_fp, "%*s]\n", currentIndentation, "");
 }
 
+//term() uses following grammatical rule: <term> ::= <factor> {(*|/) <factor>}
 void term() {
     fprintf(out_fp, "%*s[term\n", currentIndentation, "");
     currentIndentation += 4;
@@ -208,7 +230,7 @@ void term() {
     currentIndentation -= 4;
     fprintf(out_fp, "%*s]\n", currentIndentation, "");
 }
-
+//factor() uses following grammatical rule: <factor> ::= <id> | <int> | ( <expr> )
 void factor() {
     fprintf(out_fp, "%*s[factor\n", currentIndentation, "");
     currentIndentation += 4;

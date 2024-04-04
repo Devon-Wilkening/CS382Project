@@ -1,0 +1,25 @@
+[expr
+    [term
+        [factor
+            [id [A]]
+        ]
+        [*]
+        [factor
+            [LPAREN]
+            [expr
+                [term
+                    [factor
+                        [id [B]]
+                    ]
+                ]
+                [+]
+                [term
+                    [factor
+                        [id [100]]
+                    ]
+                ]
+            ]
+            [RPAREN]
+        ]
+    ]
+]
